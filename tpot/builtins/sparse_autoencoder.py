@@ -13,15 +13,17 @@ from keras.layers import Input, Dense
 from keras.models import Model
 from numpy import array
 from numpy import argmax
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.utils import check_array, check_X_y
 from keras import regularizers
 pd.options.mode.chained_assignment = None
 
-class SparseAutoencoder(object):
+class SparseAutoencoder(BaseEstimator, TransformerMixin):
     
-    def __init__(self,encoding_dim, regularizer, activation, optimizer, loss, epochs, batch_size, random_state = 42):
+    def __init__(self,encoding_dim, regularizer, reg_constant, activation, optimizer, loss, epochs, batch_size, random_state = 42):
         self.regularizer = regularizer
+        self.reg_constant = reg_constant
         self.encoding_dim = encoding_dim
         self.activation = activation
         self.optimizer = optimizer
@@ -49,19 +51,27 @@ class SparseAutoencoder(object):
         
         X_width = x_train.shape[1]
         
+        if self.regularizer == 'l1':
+            activity_regularizer = regularizers.l1(self.reg_constant)
+        elif self.regularizer == 'l2':
+            activity_regularizer = regularizers.l2(self.reg_constant)
+        elif self.regularizer == 'l1_l2':
+            activity_regularizer = regularizers.l1_l2(self.reg_constant)
+        
         self.input_placeholder = Input(shape = (X_width, ))    #input placeholder
-        self.encoded = Dense(self.encoding_dim, activation = self.activation, 
-                            activity_regularizer = self.regularizer)(self.input_placeholder)   #the encoded representation of input
+        self.encoded = Dense(self.encoding_dim, activation = self.activation,
+                            activity_regularizer = activity_regularizer)(self.input_placeholder)   #the encoded representation of input
         self.decoded = Dense(X_width, activation = 'sigmoid')(self.encoded)
         
         #define autoencoder model object
         self.autoencoder = Model(self.input_placeholder, self.decoded)
         #compile autoencoder model
         self.autoencoder.compile(optimizer = self.optimizer, loss = self.loss)
-        self.autoencoder.fit(x_train, x_train, 
-                             epochs = self.epochs, 
-                             batch_size = self.batch_size, 
-                             shuffle = True, 
+        self.autoencoder.fit(x_train, x_train,
+                             epochs = self.epochs,
+                             verbose=0,
+                             batch_size = self.batch_size,
+                             shuffle = True,
                              validation_data = (x_val, x_val))
         
         #define separate encoder model object
