@@ -1,0 +1,6 @@
+generations,population_size,training_acc,testing_acc,training_time,pipeline
+1,10,0.7619047619047619,0.36363636363636365,799.065349817276,"Pipeline(memory=None,
+     steps=[('simpleautoencoder', SimpleAutoencoder(activation='relu', batch_size=10, encoding_dim=100,
+         epochs=50, loss='hinge', optimizer='Nadam', random_state=42)), ('randomforestclassifier', RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
+            max_depth=None...ors=100, n_jobs=None, oob_score=False,
+            random_state=None, verbose=0, warm_start=False))])"
