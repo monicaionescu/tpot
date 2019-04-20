@@ -30,7 +30,7 @@ pd.options.mode.chained_assignment = None
 # personal_config = classifier_config_dict_light
 personal_config = classifier_config_dict
 personal_config['tpot.builtins.SimpleAutoencoder'] = {
-    'encoding_dim': [10, 50, 100, 500],
+    'encoding_dim': [10, 50, 100],
     'activation': ['relu'],
     'optimizer': ['adadelta', "SGD", "Adam", "Adamax", "Nadam"],
     'loss':['binary_crossentropy', 'hinge', 'mean_squared_error', 'mean_absolute_error'],
@@ -39,9 +39,9 @@ personal_config['tpot.builtins.SimpleAutoencoder'] = {
 }
 
 #new data
-new_data = pd.read_csv("processed_aml_data.csv")
-X = new_data.iloc[:, 1:5051]
-y = new_data.iloc[:, 5051]
+new_data = pd.read_csv("processed_aml_data_2.csv")
+X = new_data.iloc[:, 1:1011]
+y = new_data.iloc[:, 1011]
 
 #convert X and y to numpy
 X = X.values
@@ -50,8 +50,8 @@ y = y.values
 #split data into training and validation sets
 x_train, x_val, y_train, y_val = train_test_split(X, y, train_size = 0.8, test_size = 0.20, random_state = 42)
 
-gens = 1
-pop_size = 10
+gens = 50
+pop_size = 100
 template = "SimpleAutoencoder-RandomForestClassifier"
 
 tpot = TPOTClassifier(generations=gens, config_dict=personal_config,
